@@ -15,7 +15,6 @@ import os
 from django.contrib.sessions.models import Session
 import requests
 from django.conf import settings
-from genai import GenerativeModel
 
 
 
@@ -24,18 +23,15 @@ USERNAME = 'elastic'
 PASSWORD = 'eDh1RQbA3i6dMv2cEYNNcy2J'
 
 
-GEMINI_API_ENDPOINT = "https://api.gemini.ai/v1/generate"
 GEMINI_API_KEY = "AIzaSyDAh7Ug0TKtRuq6w7RAjekLlvy8SRLza1M"
+genai.configure(api_key=GEMINI_API_KEY)
 
 FAQ_PATH = os.path.join(os.path.dirname(__file__), 'faq_data.json')
 
 with open(FAQ_PATH, "r") as f:
     faq_data = json.load(f)
 
-
-
-
-
+model = genai.GenerativeModel('gemini-1.5-flash-8b-exp-0924')
 
 
     
@@ -79,146 +75,51 @@ class FAQSearchView(APIView):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class GeminiChatbotAPIView(APIView):
+class chat_bot_gem2(APIView):
 
     def post(self, request):
-        
-        prompt = request.data.get('prompt')
-
-        
-        history = request.session.get('chat_history', [])
-
-        
-        history.append({"user": prompt})
-
-        
+        prompt = request.data.get('prompt', '')
+        #history = request.session.get('chat_history', [])
         context = faq_data
+             
+        chat = model.start_chat()
 
-        
-        model = GenerativeModel('gemini-pro')
-
-        
         model_input = {
             'prompt': prompt,
-            'context': context,
-            'history': history
+            'context': context
         }
+        input = f"Here is the context, {context} \n Now answer this: \n {prompt}"
 
-        try:
+        response_text = chat.send_message(input)
+        
+
+       # history.append({"user": prompt})
+        return JsonResponse({
+            'response': response_text.text
+        })
+
+        # try:
             
-            gemini_response = model.generate(model_input)
+        #     gemini_response = model.generate(model_input)
 
             
-            bot_response = gemini_response.get('response', 'No response from Gemini model.')
+        #     bot_response = gemini_response.get('response', 'No response from Gemini model.')
 
             
-            history.append({"bot": bot_response})
+        #     history.append({"bot": bot_response})
 
             
-            request.session['chat_history'] = history
+        #     request.session['chat_history'] = history
 
             
-            return JsonResponse({
-                'response': bot_response,
-                'history': history
-            })
+        #     return JsonResponse({
+        #         'response': bot_response,
+        #         'history': history
+        #     })
+        #     history.append({"user": prompt})
 
-        except Exception as e:
-            return JsonResponse({
-                'error': 'Failed to communicate with Gemini model.',
-                'details': str(e)
-            }, status=500)
+        # except Exception as e:
+        #     return JsonResponse({
+        #         'error': 'Failed to communicate with Gemini model.',
+        #         'details': str(e)
+        #     }, status=500)

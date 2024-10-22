@@ -1,8 +1,8 @@
 # faq/urls.py
 from django.urls import path
-from .views import FAQSearchView, GeminiChatbotAPIView
+from .views import *
 
 urlpatterns = [
     path('search/', FAQSearchView.as_view(), name='faq-search'),
-    path('chat/',GeminiChatbotAPIView.as_view(),name='chatbot')
+    path('chat/',chat_bot_gem2.as_view(),name='chatbot')
 ]
