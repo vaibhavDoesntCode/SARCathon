@@ -88,7 +88,7 @@ class chat_bot_gem2(APIView):
             'prompt': prompt,
             'context': context
         }
-        input = f"Here is the context, {context} \n Now answer this: \n {prompt}"
+        input = f"You are a chat bot for SARAS AI, this is all you need to know about SARAS AI: \n {context} \n Now the user asks you a question: \n {prompt}. Answer the question to help the user"
 
         response_text = chat.send_message(input)
         
